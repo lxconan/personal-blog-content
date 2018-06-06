@@ -1,9 +1,10 @@
 ---
-layout: post
 title: "我如何向 HR MM 介绍 Microservice"
 date: 2015-09-08 01:06:55 +0800
 comments: true
-categories: microservice architecture
+tags: 
+- microservice
+- architecture
 ---
 
 一天我司招财猫姐(HR 大人)问我，你给我解释一下 Microservice 是什么吧。故成此文。一切都是从一个创业公司开始的。

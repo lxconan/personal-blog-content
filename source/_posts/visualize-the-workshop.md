@@ -1,9 +1,10 @@
 ---
-layout: post
 title: "Visualize The Workshop"
 date: 2014-01-29 02:32:01 +0800
 comments: true
-categories: visualize coaching
+tags: 
+- visualize
+- coaching
 ---
 
 今天这篇文章是准备瞎扯的。平常工作的时候，我希望尽可能的将一切自动化，让自己尽可能的舒适与懒惰。两个输入设备（键盘+鼠标）太累，我只想用一个，例如我不希望翻箱倒柜的去翻找 GO-Agent 在哪里，我希望用一个命令就可以开启它。我希望用一个脚本就完成整个工程的依赖的下载，构建，打包，部署，然后让 Pipeline 去跑自动化的单元测试和集成测试。总之，好像有命令行就足够了，我不需要GUI。

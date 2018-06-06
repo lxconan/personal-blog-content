@@ -1,9 +1,11 @@
 ---
-layout: post
 title: "你真的非用 dynamic 不行"
 date: 2015-02-26 15:38:51 +0800
 comments: true
-categories: csharp dynamic couple
+tags: 
+- csharp
+- dynamic
+- coupling
 ---
 
 自从 .NET 4.0 开始引入 `dynamic` 之后，好像将 C# 一夜之间变成了动态语言。使用场景不计其数。但是，你真的一定要用 `dynamic` 吗？

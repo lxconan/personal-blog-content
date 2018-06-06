@@ -8,7 +8,8 @@
   "scripts": {
     "local": "hexo server",
     "clean": "hexo clean",
-    "deploy": "hexo deploy"
+    "deploy": "hexo deploy",
+    "new": "hexo new"
   },
   "dependencies": {
     "hexo": "^3.2.0",

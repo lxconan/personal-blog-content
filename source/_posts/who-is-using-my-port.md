@@ -1,9 +1,10 @@
 ---
-layout: post
 title: "谁占了我的端口 for Windows"
 date: 2016-01-07 02:01:01 +0800
 comments: true
-categories: tips powershell
+tags: 
+- tips
+- powershell
 ---
 
 今天在本地调试 Blog 的时候意外的出现了一些错误：127.0.0.1 4000 端口已经被其他的进程占用了。如何找到占用端口的进程呢？

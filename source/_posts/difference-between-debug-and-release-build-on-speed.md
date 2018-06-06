@@ -1,9 +1,10 @@
 ---
-layout: post
 title: ".NET 的 Debug 和 Release build 对执行速度的影响"
 date: 2014-10-13 16:33:20 +0800
 comments: true
-categories: performance jit compiler
+tags: 
+- performance 
+- jit
 ---
 
 在真正开始讨论之前先定义一下 Scope。

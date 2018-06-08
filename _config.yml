@@ -81,3 +81,10 @@ deploy:
   type: git
   repo: git@github.com:lxconan/lxconan.github.io.git
   branch: master
+
+# google analytics
+googleTrackId: UA-47369838-1
+
+# disqus comment
+disqus: true
+disqus_shortname: lxconanblog

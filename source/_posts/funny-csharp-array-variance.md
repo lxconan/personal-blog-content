@@ -65,7 +65,7 @@ public class BaseClass : IBehavior
 ```cs
 public class Derived : BaseClass
 {
-  protected override void Undo() => Console.WriteLine("RichTextBox.Undo");
+  protected override void Perform() => ... /* overrided work */;
 }
 ```
 

@@ -8,6 +8,8 @@ tags:
 
 失踪人口回归。去年六月份开始，我开始翻译一千多页的《CSharp 7 in a NutShell》到现在为止终于告一段落。我又回归了表世界。从这次开始我希望展开一个全新的主题。我叫它 ASP.NET Core 沉思录（多么高大上的名字，自我陶醉~）。今天是第一个主题。`CreateWebHostBuilder` 是一个 Convension。
 
+<!--more-->
+
 ## 太长不读
 
 对于 `WebApplicationFactory<T>` 而言，默认情况下会采取如下假定：
@@ -85,7 +87,7 @@ public class WebHostBuilderConfigurator
 }
 ```
 
-这样，`Program` 仅仅包含整个应用程序的入口：
+这样，`Program` 仅仅包含整个应用程序的入口，`CreateWebHostBuilder` 方法就被删掉了：
 
 ```cs
 public static void Main(string[] args)
@@ -146,9 +148,7 @@ System.InvalidOperationException : No method 'public static IWebHostBuilder Crea
 * 应用程序入口所在的类（`Program`），里面会包含整个创建和配置 `IWebHostBuilder` 的过程；
 * 创建和配置 `IWebHostBuilder` 的过程是由应用程序入口所在类的 `CreateWebHostBuilder` 方法完成的。
 
-只要符合这三个假定，那么你尽可不费吹灰之力就达到了产品测试配置一致的目的。而如果不符合这个假定将让测试在默认状态下执行失败。具体的代码请参考：
-
-// placeholder
+只要符合这三个假定，那么你尽可不费吹灰之力就达到了产品测试配置一致的目的。而如果不符合这个假定将让测试在默认状态下执行失败。具体的代码请参考 [这里](https://github.com/aspnet/AspNetCore/blob/v2.2.1/src/Mvc/src/Microsoft.AspNetCore.Mvc.Testing/WebApplicationFactory.cs#L278) 和 [这里](https://github.com/aspnet/AspNetCore/blob/v2.2.1/src/Shared/Hosting.WebHostBuilderFactory/WebHostFactoryResolver.cs#L14)。从 `WebHostFactoryResolver` 里面可以看出，除了 `CreateWebHostBuilder` 方法之外，`BuildWebHost` 也是一个 Convension，只不过主要是为了向前兼容的目的。
 
 在真实的项目中，很可能是不满足这三个条件的，那么怎么办呢？还好我们可以通过集成 `WebApplicationFactory<T>` 并重写 `CreateWebHostBuilder` 方法来解决这个问题：
 
@@ -183,7 +183,7 @@ public async Task should_get_response_text_using_web_app_factory()
 
 就可以了。
 
-最后，需要提醒的是 `WebApplicationFactory<T>` 的 `T` 是 `TEntryPoint` 虽然平常大家都喜欢写 `Startup`。
+最后，需要提醒的是 `WebApplicationFactory<T>` 的 `T` 是 `TEntryPoint` ，是入口所在的程序集的类型。虽然平常大家都喜欢写 `Startup`。
 
 ## 总结
 

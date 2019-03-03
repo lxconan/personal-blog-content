@@ -6,7 +6,7 @@ tags:
 - testing
 ---
 
-失踪人口回归。去年六月份开始，我开始翻译一千多页的《CSharp 7 in a NutShell》到现在为止终于告一段落。我又回归了表世界。从这次开始我希望展开一个全新的主题。我叫它 ASP.NET Core 沉思录（多么高大上的名字，自我陶醉~）。今天是第一个主题。`CreateWebHostBuilder` 是一个 Convension。
+失踪人口回归。去年六月份开始，我开始翻译一千多页的《CSharp 7 in a Nutshell》到现在为止终于告一段落。我又回归了表世界。从这次开始我希望展开一个全新的主题。我叫它 ASP.NET Core 沉思录（多么高大上的名字，自我陶醉~）。今天是第一个主题。`CreateWebHostBuilder` 是一个 Convension。
 
 <!--more-->
 

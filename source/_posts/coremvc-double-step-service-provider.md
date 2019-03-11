@@ -8,6 +8,8 @@ tags:
 
 ASP.NET Core 终于将几乎所有的对象创建工作都和依赖注入框架集成了起来。并对大部分的日常工作进行了抽象。使得整个框架扩展更加方便。各个部分的集成也更加容易。今天我们要思考的部分仍然是从一段每一个工程中都大同小异的代码开始的。
 
+<!--more-->
+
 ```cs
 IWebHostBuilder CreateWebHostBuilder(string[] args)
 {
@@ -19,9 +21,18 @@ IWebHostBuilder CreateWebHostBuilder(string[] args)
 }
 ```
 
+## 0 太长不读
+
+<img src="{{root_url}}/images/blog/core-mvc-service-providers.jpg" style="text-align:center" alt="service-providers"/>
+
+* ASP.NET Core 的初始化包含了两个步骤：第一个步骤是 Hosting 相关服务的初始化过程，初始化完毕之后创建了第一个 `IServiceProvider` 对象；第二步是 Application 相关服务的初始化过程。而 Application 的初始化过程可以注入 Hosting 相关的服务。之后，通过 `IStartup.ConfigureServices` 方法创建了第二个 `IServiceProvider` 对象。
+* 初始化过程中创建的两个 `IServiceProvider` 均会跟随 `WebHost` 的销毁而销毁。
+* 通过 `Startup` 类型的构造函数注入的实例是由 Hosting 初始化阶段创建的 `IServiceProvider` 创建的。只能注入 Hosting 初始化阶段添加的类型。且最好不要使用大量消耗资源的类型。
+* 可以在 `Startup.Configure` 方法中添加其他参数，这样会使用 Application 的一个 `Scope` 下的 `IServiceProvider` 进行注入，且在方法调用完毕之后该 `Scope` 即被销毁。因此该方法内可以创建资源占用量较高的需要 `Dispose` 的类型实例而不造成泄露。
+
 ## 1 WebHost 的构建主要就是向 `IServiceCollection` 中添加服务
 
-我们之前提到过，任何 Framework 只有两件事情，第一件事情就是对象怎么创建，第二件事情就是如何将这些创建出来的对象塞到 Framework 处理流水线中。因此 ASP.NET Core 也是这样。在应用程序启动的时候，我们会在 `WebHostBuilder.Build` 方法调用之前进行各种各样的操作，虽然我们调用的大部分操作都是扩展方法（例如上述代码中的 `UseXxx`，和 `ConfigureLogging`），但是归根结底会调用 `IWebHostBuilder` 的以下方法：
+之前提到过，任何 Framework 只有两件事情，第一件事情就是对象怎么创建，第二件事情就是如何将这些创建出来的对象塞到 Framework 处理流水线中。因此 ASP.NET Core 也是这样。在应用程序启动的时候，我们会在 `WebHostBuilder.Build` 方法调用之前进行各种各样的操作，虽然我们调用的大部分操作都是扩展方法（例如上述代码中的 `UseXxx`，和 `ConfigureLogging`），但是归根结底会调用 `IWebHostBuilder` 的以下方法：
 
 ```cs
 IWebHostBuilder ConfigureAppConfiguration(Action<WebHostBuilderContext, IConfigurationBuilder> configureDelegate);
@@ -79,7 +90,7 @@ public class Startup
 }
 ```
 
-如果单纯看这个结果那么并没有任何的稀奇之处。`ConfigureServices` 方法将应用需要的类型全部添加到 `IServiceCollection` 实例中，而 `Configure` 来构建 Pipeline（我们此次不讨论该方法）。但是如果我们需要记录日志，读取配置文件，在应用程序生命周期事件中注册新的处理方法时，我们可以将其直接注入 `Startup` 中。例如：
+如果单纯观察上述代码那么并没有任何的稀奇之处。`ConfigureServices` 方法将应用需要的类型全部添加到 `IServiceCollection` 实例中，而 `Configure` 来构建 Pipeline（我们此次不讨论该方法）。但是如果我们需要记录日志，读取配置文件，在应用程序生命周期事件中注册新的处理方法时，我们可以将其直接注入 `Startup` 中。例如：
 
 ```cs
 public class Startup
@@ -136,8 +147,16 @@ public class Startup
 
 首先我们已经了解，`Startup` 可以使用 Hosting 的 `IServiceProvider` 进行注入。但是 `IServiceProvider` 是一个顶级的 Provider，如果我们在 `Startup` 中创建了一个非常消耗资源的对象（实现了 `IDisposable`），则在默认情况下该对象只有在应用程序彻底退出的时候才会销毁。若显式 `Dispose` 该对象的话且该对象不是 `Transient` Scope。则有可能导致 Defect。
 
-## 4 和实现相关的 “机制” 用法
+## 4 规避初始化过程中的资源泄露
 
-但是如果我真的需要在初始化的时候注入非常消耗资源的对象，而我又希望规避资源的泄露，我该怎么办呢？其实还是有办法的。那就是不使用 `Startup` 的构造函数进行注入而是直接在 `ConfigureServices` 和 `Configure` 方法中通过参数进行注入。
+但是如果我真的需要在初始化的时候注入非常消耗资源的对象，而我又希望规避资源的泄露，我该怎么办呢？其实还是有办法的。那就是不使用 `Startup` 的构造函数进行注入而是直接在 `Configure` 方法中通过参数进行注入。
 
-为什么这种方式可以规避资源泄露呢？
+为什么这种方式可以规避资源泄露呢？因为这种注入机智并非典型的依赖注入机制，而是 ASP.NET Core 特意实现的。如果应用程序在初始化时使用的 `UseStartup<TStartup>()` 中的 `TStartup` 并没有实现 `IStartup` 的话，ASP.NET Core 就会使用基于约定的 `IStartup` 实现对 `TStartup` 进行包装。在包装过程中，它会尝试找到 `TStartup` 类型中的 `Configure` 方法，检查参数表中的参数，并使用 `IStartup.ConfigureServices` 创建的 `IServiceProvider` 进行注入。但是这里的 `IServiceProvider` 却并不初始化过程中的顶级 Provider。而是在将整个方法调用包裹在了 `Scope` 里。因此即使在初始化过程中创建非常消耗资源的实例也会随着方法调用结束后 `Scope` 的 `Dispose` 而销毁。具体代码请参见：[ConfigureBuilder 源代码](https://github.com/aspnet/AspNetCore/blob/master/src/Hosting/Hosting/src/Internal/ConfigureBuilder.cs)
+
+## 5 总结
+
+请飞到文章开头的第 0 节 :-D。
+
+如果您觉得本文对您有帮助，也欢迎分享给其他的人。我们一起进步。欢迎关注我的微信公众号：
+
+<img src="{{root_url}}/images/blog/funny_csharp_barcode.jpeg" style="text-align:center" alt="wechat-app-barcode"/>

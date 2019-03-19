@@ -1,6 +1,6 @@
 ---
 title: "ASP.NET Core 沉思录 - Logging 的两种介入方法"
-date: 2019-03-18 17:22:33
+date: 2019-03-19 20:00:33
 tags:
 - aspnetcore
 - dependency injection
@@ -8,6 +8,8 @@ tags:
 ---
 
 ASP.NET Core 中依赖注入是一个很重要的环节。因为几乎所有的对象都是由它创建的（相关文章请参见《ASP.NET Core 沉思录 - ServiceProvider 的二度出生》）。因此整个日志记录的相关类型也被直接添加到了 `IServiceCollection` 中。今天我们将介绍各个接口/类型之间的关系，并找到介入日志记录功能的两个主要的入口。
+
+<img src="{{root_url}}/images/blog/coremvc-logger.jpg" style="text-align:center" alt="wechat-app-barcode"/>
 
 <!--more-->
 

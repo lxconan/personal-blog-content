@@ -8,6 +8,8 @@ tags:
 
 在 《ASP.NET Core 沉思录 - Logging 的两种介入方法》中我们介绍了 ASP.NET Core 中日志的基本设计结构。这一次我们来观察日志记录的格式，并进一步考虑如何在应用程序中根据不同的需求选择不同的日志记录形式。
 
+<img src="{{root_url}}/images/blog/core-mvc-logging-title-2.jpg" style="text-align:center" alt="write on hand"/>
+
 <!--more-->
 
 太长不读：直接飞到文章最后 :-D

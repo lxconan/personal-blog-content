@@ -64,10 +64,10 @@ Thread.Sleep(1000);
 Assert.Equal("...(omitted)...", writer.ToString())
 ```
 
-如果您尝试了上述范例程序就会发现这个设计的问题，而如果联系整个 *Extension.Logging* 体系则感觉问题就更大了：
+如果您尝试了上述范例程序就会感到这个设计好像有问题，而如果联系整个 *Extension.Logging* 体系则感觉问题就更大了：
 
 * `formatter `只是解决了日志 message 部分的格式化问题，而无法影响其他信息的格式化，例如 `eventId`、`logLevel`、`exception` 等。
-* 我们根本不会用到具体的 `ILoggerProvider` 而是会使用 `ILoggerFactory` 提供的 `Logger` 门面。这个 `Logger` 是一个组合 `Logger`，也就是它会将 `ILogger.Log` 调用分发出来。但是我们很少使用 `ILogger.Log` 方法，而会使用扩展方法使用 template message 进行日志记录，这意味着所有的子 `ILogger` 实现都会接到同样的 `formatter`。自此，不同的目标采用不同的消息格式的理想破灭了。
+* 我们根本不会用到具体的 `ILoggerProvider` 而是会使用 `ILoggerFactory` 提供的 `Logger` 门面。这个 `Logger` 是一个组合 `Logger`，也就是它会将 `ILogger<>.Log` 调用分发出来。但是我们很少使用 `ILogger<>.Log` 方法，而会使用扩展方法使用 template message 进行日志记录，这意味着所有的子 `ILogger` 实现都会接到同样的 `formatter`。自此，不同的目标采用不同的消息格式的理想破灭了。
 
 总结一下就是，日志的记录目标和日志的格式混合了起来。职责区分不清。message 的格式化职责交给了门面扩展方法；而另一部分格式化职责交给了具体的 `ILoggerProvider`。
 
@@ -106,7 +106,7 @@ Assert.Equal("...(omitted)...", writer.ToString())
 
 ## 利用 SeriLog 实现灵活的日志记录形式
 
-通过上述分析我们应该能够看到这种设计的合理性。但是不争的事实是 `ILoggerProvider` 一系包揽两种智能，并没有进一步抽象，有没有人来对日志记录的目标和日志记录的整体格式进行抽象呢？有！那就是被千万人喜爱的 `SeriLog`。它在 `ILoggerProvider` 一级商抽象了 `ITextFormatter` 解决了这个问题：
+通过上述分析我们应该能够看到这种设计的合理性。但是不争的事实是 `ILoggerProvider` 一系包揽两种职能，并没有进一步抽象，有没有人来对日志记录的目标和日志记录的整体格式进行抽象呢？有！那就是被千万人喜爱的 `SeriLog`。它在 `ILoggerProvider` 一级商抽象了 `ITextFormatter` 解决了这个问题：
 
 > 我在这里不会介绍 SeriLog 的具体使用方法。网上教程一大堆大家去搜搜好了。我建议直接去官网。
 
@@ -183,6 +183,8 @@ logger.LogInformation("Hello {name}", "world");
     "Properties":{"name":"world","SourceContext":"category"}
 }
 ```
+
+这样，在实际的操作中。我们可以直接使用 *Microsoft.Extension.Logging* 默认体系对 `ILoggerProvider` 进行扩展达到对记录目标和记录格式的控制；也可以将其与 SeriLog 集成。通过 Sink 和 `ITextFormatter` 组合的方式分别对记录目标和记录格式进行控制。
 
 ## 总结
 
